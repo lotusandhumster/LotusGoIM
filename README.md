@@ -41,3 +41,5 @@
 > 写得很水，单人单月轻喷，希望有些帮助QwQ
 
 > 可以登录https://hamster.love预览，作者QQ:1529185705 欢迎打扰
+
+> 演示地址：【用SingalR和Vue3写的很简陋的即时聊天小项目】 https://www.bilibili.com/video/BV1kr421x7kx/?share_source=copy_web&vd_source=26243aa4f2ccc62252b52d08fac8d77c
