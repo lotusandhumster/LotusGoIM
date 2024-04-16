@@ -4,6 +4,7 @@ using LotusGoIMWebAPI.Models.SearchFilters;
 using LotusGoIMWebAPI.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics.Metrics;
 using System.Security.Claims;
 
 namespace LotusGoIMWebAPI.Hubs
@@ -127,6 +128,14 @@ namespace LotusGoIMWebAPI.Hubs
             await _groupService.DeleteAsync(groupId);
 
             await Clients.Group(groupId.ToString()).SendAsync("ReceiveRemoveGroup", groupId);
+        }
+
+        public async Task RemoveGroupMember(int groupMemberId)
+        {
+            var groupMember = await _groupMemberService.GetAsync(groupMemberId);
+            await _groupMemberService.DeleteAsync(groupMemberId);
+
+            await Clients.Group(groupMember!.GroupId.ToString()).SendAsync("ReceiveRemoveGroupMember", groupMember.UserId);
         }
 
         public async Task InviteGroupMember(int groupId, int userId)
