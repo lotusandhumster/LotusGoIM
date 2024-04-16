@@ -44,20 +44,20 @@
                     </el-col>
                 </el-row>
             </el-card>
-            <el-card @click="showMemberInfo(member)" class="member-info" :body-style="{padding: 0}" shadow="hover" v-for="member in groupMemberList" :key="member.memberId">
+            <el-card class="member-info" :body-style="{padding: 0}" shadow="hover" v-for="member in groupMemberList" :key="member.memberId">
                 <el-row  v-if="currentUserStore.currentGroup.owner!==member.memberId" >
-                    <el-col :span="2">
+                    <el-col :span="2" @click="showMemberInfo(member)">
                         <el-icon color="skyblue"><Avatar /></el-icon>
                     </el-col>
-                    <el-col :span="3">
+                    <el-col :span="3" @click="showMemberInfo(member)">
                         <el-avatar :size="20" :src="member.avatarUrl"></el-avatar>
                     </el-col>
-                    <el-col :span="2">
+                    <el-col :span="2" @click="showMemberInfo(member)">
                             <el-icon v-if="member.gender===1" color="blue"><Male /></el-icon>
                             <el-icon v-else-if="member.gender===2" color="pink"><Female /></el-icon>
                             <el-icon v-else color="green">?</el-icon>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="12" @click="showMemberInfo(member)">
                         <el-text>{{member.memberName ?? member.memberName!='' ? member.memberName : member.nickName }}
                         </el-text>
                     </el-col>
@@ -180,7 +180,7 @@ import { getCurrentInstance, onMounted, ref, watch } from 'vue'
 import useCurrentUserStore from '../stores/currentUser'
 import useGroupMemberApi from '../api/groupMemberApi'
 import { GroupMember, ClientUser, GroupMemberSearchFilter, GroupMemberModel, PrivateMessageSearchFilter, Friend, FriendSearchFilter, ClientUserSearchFilter } from '../types'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import usePrivateMessageApi from '../api/privateMessageApi'
 import useFriendApi from '../api/friendApi'
 import useClientUserApi from '../api/clientUserApi'
@@ -283,8 +283,25 @@ const toEditMember = () => {
 }
 
 const removeMember = (member: GroupMemberModel) => {
-    member
+  ElMessageBox.confirm('确定移除该成员吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        currentUserStore.chatGptMessages = []
+        currentUserStore.connection.invoke("RemoveGroupMember", member.groupMemberId).then(() => {
+            ElMessage.success('移除成功')
+            getGroupMemberList()
+        })
+    }).catch(() => {
+        ElMessage.info('已取消')
+    })
+  
 }
+
+currentUserStore.connection.on("ReceiveRemoveGroupMember", () => {
+  getGroupMemberList()
+})
 
 const getMessages = async () => {
     const searchFilter: PrivateMessageSearchFilter = {} as PrivateMessageSearchFilter
